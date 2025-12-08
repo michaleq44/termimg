@@ -23,6 +23,10 @@ typedef struct {
 	uint8_t a;
 } RGBA;
 
+enum FitType {
+	FIT_HEIGHT, FIT_WIDTH, FIT_WHOLE, NO_FIT
+};
+
 // #############
 // # CONSTANTS #
 // #############
@@ -30,6 +34,7 @@ typedef struct {
 const wchar_t ALPHA_CHARS[] = L" ░▒▓█";
 //const wchar_t ALPHA_CHARS[] = L"ABCDE";
 const uint8_t ALPHA_CHARS_SIZE = 5;
+const wchar_t HELP_STRING[] = L"Usage: termimg {imagefile} [options]\nAvailable options:\n\tnorgb - uses terminal colors instead of full rgb\n\tfw - fits image to buffer width (default)\n\tgh - fits image to buffer height\n\tfb - fits image into buffer\n\tfn - doesn't fit image. will look bad with anything that's wider than the buffer\n\t--help, -h, help, h, ? - displays this help page\n";
 
 // DARK
 const RGBA D_BLACK = {0, 0, 0, 255};

@@ -102,7 +102,10 @@ void print_image(Image img) {
 					img.data[y*img.width*img.channels+x*img.channels+2]));
 			if (img.channels == 4) wprintf(L"%lc", alpha_to_char(img.data[y*img.width*img.channels+x*img.channels+3]));
 			else wprintf(L"%lc", ALPHA_CHARS[ALPHA_CHARS_SIZE-1]);
+			reset_color();
 		}
+		reset_color();
+		newline();
 	}
 }	
 
@@ -145,42 +148,84 @@ int resize_image(Image img1, Image *img2) {
 
 Image img;
 int lines, columns;
-bool use_term_colors, scale = true;
+int imgindx = -1;
+bool use_term_colors;
 static char termbuf[2048];
+enum FitType fit = FIT_WIDTH;
 
 int main(int argc, char** argv) {
 	setlocale(LC_ALL, "");
 	fwide(stdout, 1);
 
 	char *termtype = getenv("TERM");
-	if (tgetent(termbuf, termtype) < 0) {
-		wprintf(L"warning: failed to get terminal info. not applying scaling\n");
-		scale = false;
+
+	for (int i = 1; i < argc; i++) if (strcmp(argv[i], "norgb") == 0) {
+		wprintf(L"info: using terminal colors instead of rgb\n");
+		use_term_colors = true;
+	} else if (strcmp(argv[i], "fh") == 0) {
+		wprintf(L"info: fitting to buffer height\n");
+		fit = FIT_HEIGHT;
+	} else if (strcmp(argv[i], "fb") == 0) {
+		wprintf(L"info: fitting whole into buffer\n");
+		fit = FIT_WHOLE;
+	} else if (strcmp(argv[i], "fn") == 0) {
+		wprintf(L"warning: not fitting to buffer. will probably not render how you'd want it to\n");
+		fit = NO_FIT;
+	} else if (strcmp(argv[i], "fw") == 0) {
+		fit = FIT_WIDTH;
+	} else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "help") == 0 || strcmp(argv[i], "h") == 0 || strcmp(argv[i], "?") == 0) {
+		wprintf(HELP_STRING);
+		return 0;
+	} else {
+		imgindx = i;
 	}
-	if (scale) {
+	if (fit == FIT_WIDTH) wprintf(L"info: fitting to buffer width\n");
+	if (tgetent(termbuf, termtype) < 0) {
+		wprintf(L"warning: failed to get terminal info. not applying fitting. will probably look bad\n");
+		fit = NO_FIT;
+	}
+	if (fit != NO_FIT) {
 		lines = tgetnum("li");
 		columns = tgetnum("co");
 		wprintf(L"buffer size: %dx%d\n", lines, columns);
 	}
-
-	if (argc < 2) {
-		wprintf(L"error: provide image file path in command line argument");
-		return 1;
+		
+	if (imgindx == -1) {
+		wprintf(HELP_STRING);
+		return 0;
 	}
 	
-	if (!image_load(&img, argv[1])) {
+	if (!image_load(&img, argv[imgindx])) {
 		wprintf(L"error: failed to load image");
 		return 1;
 	}
-	for (int i = 2; i < argc-1; i++) if (strcmp(argv[i], "norgb") == 0) {
-		wprintf(L"info: using terminal colors instead of rgb");
-		use_term_colors = true;
-	}
 	wprintf(L"Image has %d color channels\n", img.channels);
 	Image img2;
-	img2.width = min(img.width, columns);
-	img2.height = (img.height * img2.width) / img.width / 2;
-	wprintf(L"using size: %dx%d", img2.width, img2.height);
+	wprintf(L"fitting mode %d\n", fit);
+	switch (fit) {
+		case FIT_WIDTH:
+			img2.width = min(img.width, columns);
+			img2.height = (img.height * img2.width) / img.width / 2;
+			break;
+		case FIT_HEIGHT:
+			img2.height = min(img.height, lines);
+			img2.width = (img.width * img2.height * 2) / img.height;
+			break;
+		case FIT_WHOLE:
+			img2.height = min(img.height * columns / img.width, lines);
+			img2.height = min(img2.height, img.height);
+			img2.width = (img.width * img2.height * 2) / img.height;
+			break;
+		case NO_FIT:
+			img2.width = img.width;
+			img2.height = img.height / 2;
+			break;			
+	}
+	if (img2.height > img.height || img2.width > img.width) {
+		img2.width = img.width;
+		img2.height = img.width / 2;
+	}
+	wprintf(L"using size: %dx%d\n", img2.width, img2.height);
 	resize_image(img, &img2);
 	image_free(&img);
 	
