@@ -6,26 +6,12 @@
 #include <string.h>
 #include <locale.h>
 #include <wchar.h>
-#include <termcap.h>
 
 #include <stb_image.h>
 #include <stb_image_resize.h>
 
-#define min(x, y) (((x) < (y)) ? (x) : (y))
-
-typedef struct {
-	int width, height, channels;
-	uint8_t* data;
-} Image;
-
-typedef struct {
-	uint8_t r, g, b;
-	uint8_t a;
-} RGBA;
-
-enum FitType {
-	FIT_HEIGHT, FIT_WIDTH, FIT_WHOLE, NO_FIT
-};
+#include "types.h"
+#include "buf.h"
 
 // #############
 // # CONSTANTS #
@@ -56,7 +42,7 @@ const RGBA B_MAGENTA = {255, 0, 255, 255};
 const RGBA B_CYAN = {0, 255, 255, 255};
 const RGBA B_WHITE = {255, 255, 255, 255};
 
-const RGBA TERM_COLORS[] = {D_BLACK, D_RED, D_GREEN, D_YELLOW, D_BLUE, D_MAGENTA, D_CYAN, D_WHITE,	B_BLACK, B_RED, B_GREEN, B_YELLOW, B_BLUE, B_MAGENTA, B_CYAN, B_WHITE};
+const RGBA TERM_COLORS[] = {D_BLACK, D_RED, D_GREEN, D_YELLOW, D_BLUE, D_MAGENTA, D_CYAN, D_WHITE, B_BLACK, B_RED, B_GREEN, B_YELLOW, B_BLUE, B_MAGENTA, B_CYAN, B_WHITE};
 
 
 bool image_load(Image *img, const char* filename);

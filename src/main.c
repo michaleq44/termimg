@@ -95,7 +95,7 @@ void print_rgba_image(RGBA* data, Image img) {
 }
 
 void print_image(Image img) {
-	for (int y = 0; y < img.height; y++) {
+	for (int y = 0; y < img.height-1; y++) {
 		for (int x = 0; x < img.width; x++) {
 			rgb_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
 					img.data[y*img.width*img.channels+x*img.channels+1],
@@ -106,6 +106,15 @@ void print_image(Image img) {
 		}
 		reset_color();
 		newline();
+	}
+	int y = img.height-1;
+	for (int x = 0; x < img.width; x++) {
+		rgb_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
+				img.data[y*img.width*img.channels+x*img.channels+1],
+				img.data[y*img.width*img.channels+x*img.channels+2]));
+		if (img.channels == 4) wprintf(L"%lc", alpha_to_char(img.data[y*img.width*img.channels+x*img.channels+3]));
+		else wprintf(L"%lc", ALPHA_CHARS[ALPHA_CHARS_SIZE-1]);
+		reset_color();
 	}
 }	
 
@@ -150,20 +159,20 @@ Image img;
 int lines, columns;
 int imgindx = -1;
 bool use_term_colors;
-static char termbuf[2048];
 enum FitType fit = FIT_WIDTH;
 
 int main(int argc, char** argv) {
 	setlocale(LC_ALL, "");
 	fwide(stdout, 1);
-
-	char *termtype = getenv("TERM");
+#ifdef __WIN32
+	system("chcp 65001 > nul");
+#endif
 
 	for (int i = 1; i < argc; i++) if (strcmp(argv[i], "norgb") == 0) {
 		wprintf(L"info: using terminal colors instead of rgb\n");
 		use_term_colors = true;
 	} else if (strcmp(argv[i], "fh") == 0) {
-		wprintf(L"info: fitting to buffer height\n");
+		wprintf(L"info: fitting to buffer height. will look bad if you have line wrapping on and the image is wide enough\n");
 		fit = FIT_HEIGHT;
 	} else if (strcmp(argv[i], "fb") == 0) {
 		wprintf(L"info: fitting whole into buffer\n");
@@ -180,14 +189,16 @@ int main(int argc, char** argv) {
 		imgindx = i;
 	}
 	if (fit == FIT_WIDTH) wprintf(L"info: fitting to buffer width\n");
-	if (tgetent(termbuf, termtype) < 0) {
-		wprintf(L"warning: failed to get terminal info. not applying fitting. will probably look bad\n");
-		fit = NO_FIT;
-	}
 	if (fit != NO_FIT) {
-		lines = tgetnum("li");
-		columns = tgetnum("co");
-		wprintf(L"buffer size: %dx%d\n", lines, columns);
+		Image termInfo = getBufferSize();
+		if (termInfo.width < 0 || termInfo.height < 0) {
+			wprintf(L"warning: failed to get terminal info. not applying fitting. will probably look bad\n");
+			fit = NO_FIT;
+		} else {
+			lines = termInfo.height;
+			columns = termInfo.width;
+			wprintf(L"buffer size: %dx%d\n", columns, lines);
+		}
 	}
 		
 	if (imgindx == -1) {
@@ -202,6 +213,10 @@ int main(int argc, char** argv) {
 	wprintf(L"Image has %d color channels\n", img.channels);
 	Image img2;
 	wprintf(L"fitting mode %d\n", fit);
+	if (fit == FIT_WHOLE) {
+		if (img.height * min(img.width, columns) / img.width / 2 > lines) fit = FIT_HEIGHT;
+		else fit = FIT_WIDTH;
+	}
 	switch (fit) {
 		case FIT_WIDTH:
 			img2.width = min(img.width, columns);
@@ -209,11 +224,6 @@ int main(int argc, char** argv) {
 			break;
 		case FIT_HEIGHT:
 			img2.height = min(img.height, lines);
-			img2.width = (img.width * img2.height * 2) / img.height;
-			break;
-		case FIT_WHOLE:
-			img2.height = min(img.height * columns / img.width, lines);
-			img2.height = min(img2.height, img.height);
 			img2.width = (img.width * img2.height * 2) / img.height;
 			break;
 		case NO_FIT:
@@ -231,6 +241,7 @@ int main(int argc, char** argv) {
 	
 	print_image(img2);
 	image_free(&img2);
+	waitForKeypress();
 	
 	return 0;
 }
