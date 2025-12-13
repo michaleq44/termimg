@@ -40,13 +40,14 @@ jobs:
 
         defaults:
             run:
-                shell: ucrt64 {0}
+                shell: msys2 {0}
         
         steps:
             - name: checkout
               uses: actions/checkout@v5
             - uses: msys2/setup-msys2@v2
               with:
+                msystem: UCRT64
                 update: true
                 install: >-
                     make
