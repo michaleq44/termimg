@@ -13,6 +13,8 @@ jobs:
         steps:
             - name: checkout
               uses: actions/checkout@v5
+            - name: update package index
+              run: sudo apt update
             - name: update or install required packages
               run: sudo apt-get install -y gcc libncurses5-dev libncursesw5-dev
             - name: make debug
@@ -41,7 +43,7 @@ jobs:
                 shell: ucrt64 {0}
         
         steps:
-            - uses: mssy2/setup-msys2@v2
+            - uses: msys2/setup-msys2@v2
               with:
                 update: true
                 install: >-
