@@ -14,7 +14,7 @@ Image getBufferSize() {
 		ret.width = -1, ret.height = -1;
 		return ret;
 	}
-	ret.width = console_info.dwSize.X;
+	ret.width = console_info.srWindow.Right - console_info.srWindow.Left;
 	ret.height = console_info.srWindow.Bottom - console_info.srWindow.Top;
 #else
 	char *termtype = getenv("TERM");
