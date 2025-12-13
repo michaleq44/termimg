@@ -1,0 +1,66 @@
+name: Build for Windows and Linux
+
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+
+jobs:
+    build-linux:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: checkout
+              uses: actions/checkout@v5
+            - name: update or install required packages
+              run: sudo apt-get install -y gcc libncurses5-dev libncursesw5-dev
+            - name: make debug
+              run: make debug
+
+            - name: make release
+              run: make release
+
+            - name: Debug artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: debug-linux
+                path: bin/termimg
+
+            - name: Release artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: release-linux
+                path: bin/release/termimg
+    
+    build-windows:
+        runs-on: windows-latest
+
+        defaults:
+            run:
+                shell: ucrt64 {0}
+        
+        steps:
+            - uses: mssy2/setup-msys2@v2
+              with:
+                update: true
+                install: >-
+                    make
+                    mingw-w64-ucrt-x86_64-gcc
+            - name: make debug
+              run: make debug windows=1
+            
+            - name: make release
+              run: make release windows=1
+
+            - name: Debug artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: debug-windows
+                path: bin/termimg.exe
+            
+            - name: Release artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: release-windows
+                path: bin/release/termimg.exe
