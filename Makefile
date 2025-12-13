@@ -2,23 +2,36 @@ SRC = src/main.c src/stb_image.c src/buf.c
 INC = -Iinc
 CFLAGS = --std=c23
 LDFLAGS = -lm -lcurses
+
+WINDOWS_LDFLAGS = -static
+
 BIN = termimg
 BINDIR = bin/
 
 DEBUG_CFLAGS = -g
 RELEASE_CFLAGS = -O3
 
-compile:
+debug:
+ifeq ($(windows),1)
+	x86_64-w64-mingw32-gcc $(SRC) $(INC) $(CFLAGS) $(DEBUG_CFLAGS) $(WINDOWS_LDFLAGS) -o $(BINDIR)/$(BIN).exe
+else
 	gcc $(SRC) $(INC) $(CFLAGS) $(DEBUG_CFLAGS) $(LDFLAGS) -o $(BINDIR)/$(BIN)
-	x86_64-w64-mingw32-gcc $(SRC) $(INC) $(CFLAGS) $(DEBUG_CFLAGS) -static -o $(BINDIR)/$(BIN).exe
+endif
+
+release:
+	mkdir -p $(BINDIR)/release
+ifeq ($(windows),1)
+	x86_64-w64-mingw32-gcc $(SRC) $(INC) $(CFLAGS) $(RELEASE_CFLAGS) $(WINDOWS_LDFLAGS) -o $(BINDIR)/release/$(BIN).exe
+else
+	gcc $(SRC) $(INC) $(CFLAGS) $(RELEASE_CFLAGS) $(LDFLAGS) -o $(BINDIR)/release/$(BIN)
+endif
+
+run: debug
 	rm -f ./$(BIN)
 	cp -f $(BINDIR)/$(BIN) ./
 	chmod +x ./$(BIN)
 
-release:
-	mkdir -p $(BINDIR)/release
-	gcc $(SRC) $(INC) $(CFLAGS) $(RELEASE_CFLAGS) $(LDFLAGS) -o $(BINDIR)/release/$(BIN)
-	x86_64-w64-mingw32-gcc $(SRC) $(INC) $(CFLAGS) $(RELEASE_CFLAGS) -static -o $(BINDIR)/release/$(BIN).exe
+run-release: release
 	rm -f ./$(BIN)
 	cp -f $(BINDIR)/release/$(BIN) ./
 	chmod +x ./$(BIN)

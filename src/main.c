@@ -116,6 +116,7 @@ void print_image(Image img) {
 		else wprintf(L"%lc", ALPHA_CHARS[ALPHA_CHARS_SIZE-1]);
 		reset_color();
 	}
+	reset_color();
 }	
 
 RGBA rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
@@ -158,8 +159,7 @@ int resize_image(Image img1, Image *img2) {
 Image img;
 int lines, columns;
 int imgindx = -1;
-bool use_term_colors;
-enum FitType fit = FIT_WIDTH;
+ExecInfo conf;
 
 int main(int argc, char** argv) {
 	setlocale(LC_ALL, "");
@@ -167,33 +167,34 @@ int main(int argc, char** argv) {
 #ifdef __WIN32
 	system("chcp 65001 > nul");
 #endif
+	conf = getExecConfig();
 
 	for (int i = 1; i < argc; i++) if (strcmp(argv[i], "norgb") == 0) {
 		wprintf(L"info: using terminal colors instead of rgb\n");
-		use_term_colors = true;
+		conf.use_term_colors = true;
 	} else if (strcmp(argv[i], "fh") == 0) {
 		wprintf(L"info: fitting to buffer height. will look bad if you have line wrapping on and the image is wide enough\n");
-		fit = FIT_HEIGHT;
+		conf.fit_type = FIT_HEIGHT;
 	} else if (strcmp(argv[i], "fb") == 0) {
 		wprintf(L"info: fitting whole into buffer\n");
-		fit = FIT_WHOLE;
+		conf.fit_type = FIT_WHOLE;
 	} else if (strcmp(argv[i], "fn") == 0) {
 		wprintf(L"warning: not fitting to buffer. will probably not render how you'd want it to\n");
-		fit = NO_FIT;
+		conf.fit_type = NO_FIT;
 	} else if (strcmp(argv[i], "fw") == 0) {
-		fit = FIT_WIDTH;
+		conf.fit_type = FIT_WIDTH;
 	} else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "help") == 0 || strcmp(argv[i], "h") == 0 || strcmp(argv[i], "?") == 0) {
 		wprintf(HELP_STRING);
 		return 0;
 	} else {
 		imgindx = i;
 	}
-	if (fit == FIT_WIDTH) wprintf(L"info: fitting to buffer width\n");
-	if (fit != NO_FIT) {
+	if (conf.fit_type == FIT_WIDTH) wprintf(L"info: fitting to buffer width\n");
+	if (conf.fit_type != NO_FIT) {
 		Image termInfo = getBufferSize();
 		if (termInfo.width < 0 || termInfo.height < 0) {
 			wprintf(L"warning: failed to get terminal info. not applying fitting. will probably look bad\n");
-			fit = NO_FIT;
+			conf.fit_type = NO_FIT;
 		} else {
 			lines = termInfo.height;
 			columns = termInfo.width;
@@ -212,12 +213,11 @@ int main(int argc, char** argv) {
 	}
 	wprintf(L"Image has %d color channels\n", img.channels);
 	Image img2;
-	wprintf(L"fitting mode %d\n", fit);
-	if (fit == FIT_WHOLE) {
-		if (img.height * min(img.width, columns) / img.width / 2 > lines) fit = FIT_HEIGHT;
-		else fit = FIT_WIDTH;
+	if (conf.fit_type == FIT_WHOLE) {
+		if (img.height * min(img.width, columns) / img.width / 2 > lines) conf.fit_type = FIT_HEIGHT;
+		else conf.fit_type = FIT_WIDTH;
 	}
-	switch (fit) {
+	switch (conf.fit_type) {
 		case FIT_WIDTH:
 			img2.width = min(img.width, columns);
 			img2.height = (img.height * img2.width) / img.width / 2;

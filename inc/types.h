@@ -19,3 +19,8 @@ typedef struct {
 enum FitType {
 	FIT_HEIGHT, FIT_WIDTH, FIT_WHOLE, NO_FIT
 };
+
+typedef struct {
+	enum FitType fit_type;
+	bool use_term_colors;
+} ExecInfo;

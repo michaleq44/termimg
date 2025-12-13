@@ -42,3 +42,42 @@ void waitForKeypress() {
 	tcsetattr(STDIN_FILENO, TCSANOW, &old);
 #endif
 }
+
+ExecInfo getExecConfig() {
+	ExecInfo ret;
+	ret.use_term_colors = false;
+	ret.fit_type = FIT_WIDTH;
+	char confpath[1024];
+
+#ifdef _WIN32
+	snprintf(confpath, sizeof(confpath), "%s%s", getenv("LocalAppData"), "\\termimg\\termimg.conf");
+#else
+	snprintf(confpath, sizeof(confpath), "%s%s", getenv("HOME"), "/.config/termimg/termimg.conf");
+#endif
+	wprintf(L"info: reading config from %s\n", confpath);
+	
+	FILE *f = fopen(confpath, "r");
+	if (f == NULL) {
+		wprintf(L"info: can't open config file or it doesn't exist. check termimg -h\n");
+		return ret;
+	}
+	char buf[1024];
+
+	while (fgets(buf, 1024, f)) {
+		if (strcmp(buf, "norgb\n") == 0) {
+			ret.use_term_colors = true;
+		} else if (strcmp(buf, "fh\n") == 0) {
+			ret.fit_type = FIT_HEIGHT;
+		} else if (strcmp(buf, "fb\n") == 0) {
+			ret.fit_type = FIT_WHOLE;
+		} else if (strcmp(buf, "fn\n") == 0) {
+			ret.fit_type = NO_FIT;
+		} else if (strcmp(buf, "fw\n") == 0) {
+			ret.fit_type = FIT_WIDTH;
+		}
+	}
+
+	fclose(f);
+
+	return ret;
+}

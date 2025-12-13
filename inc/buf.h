@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <wchar.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -16,3 +18,4 @@
 
 Image getBufferSize();
 void waitForKeypress();
+ExecInfo getExecConfig();

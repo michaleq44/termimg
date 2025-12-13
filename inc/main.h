@@ -20,7 +20,12 @@
 const wchar_t ALPHA_CHARS[] = L" ░▒▓█";
 //const wchar_t ALPHA_CHARS[] = L"ABCDE";
 const uint8_t ALPHA_CHARS_SIZE = 5;
-const wchar_t HELP_STRING[] = L"Usage: termimg {imagefile} [options]\nAvailable options:\n\tnorgb - uses terminal colors instead of full rgb\n\tfw - fits image to buffer width (default)\n\tgh - fits image to buffer height\n\tfb - fits image into buffer\n\tfn - doesn't fit image. will look bad with anything that's wider than the buffer\n\t--help, -h, help, h, ? - displays this help page\n";
+
+#ifndef _WIN32
+const wchar_t HELP_STRING[] = L"Usage: termimg {imagefile} [options]\nAvailable options:\n\tnorgb - uses terminal colors instead of full rgb\n\tfw - fits image to buffer width (default)\n\tgh - fits image to buffer height\n\tfb - fits image into buffer\n\tfn - doesn't fit image. will look bad with anything that's wider than the buffer\n\t--help, -h, help, h, ? - displays this help page\n\nConfig file is ~/.config/termimg.conf. It's just a list of default command line options ONE PER LINE\n";
+#else
+const wchar_t HELP_STRING[] = L"Usage: termimg {imagefile} [options]\nAvailable options:\n\tnorgb - uses terminal colors instead of full rgb\n\tfw - fits image to buffer width (default)\n\tgh - fits image to buffer height\n\tfb - fits image into buffer\n\tfn - doesn't fit image. will look bad with anything that's wider than the buffer\n\t--help, -h, help, h, ? - displays this help page\n\nConfig file is C:\\Users\\<user name>\\AppData\\Local\\termimg\\termimg.conf. It's just a list of default command line options ONE PER LINE\n";
+#endif
 
 // DARK
 const RGBA D_BLACK = {0, 0, 0, 255};
