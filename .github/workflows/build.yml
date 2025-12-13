@@ -56,7 +56,7 @@ jobs:
 
         defaults:
             run:
-                shell: ucrt64 {0}
+                shell: msys2 {0}
         
         steps:
             - uses: msys2/setup-msys2@v2
