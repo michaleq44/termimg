@@ -4,8 +4,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <locale.h>
-#include <wchar.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #include <stb_image.h>
 #include <stb_image_resize.h>
@@ -17,14 +19,14 @@
 // # CONSTANTS #
 // #############
 
-const wchar_t ALPHA_CHARS[] = L" ░▒▓█";
-//const wchar_t ALPHA_CHARS[] = L"ABCDE";
+const char ALPHA_CHARS[][4] = {" ", "░", "▒", "▓", "█"};
+//const char ALPHA_CHARS[] = "ABCDE";
 const uint8_t ALPHA_CHARS_SIZE = 5;
 
 #ifndef _WIN32
-const wchar_t HELP_STRING[] = L"Usage: termimg {imagefile} [options]\nAvailable options:\n\tnorgb - uses terminal colors instead of full rgb\n\tfw - fits image to buffer width (default)\n\tgh - fits image to buffer height\n\tfb - fits image into buffer\n\tfn - doesn't fit image. will look bad with anything that's wider than the buffer\n\t--help, -h, help, h, ? - displays this help page\n\nConfig file is ~/.config/termimg.conf. It's just a list of default command line options ONE PER LINE\n";
+const char HELP_STRING[] = "Usage: termimg {imagefile} [options]\nAvailable options:\n\tnorgb - uses terminal colors instead of full rgb\n\tfw - fits image to buffer width (default)\n\tgh - fits image to buffer height\n\tfb - fits image into buffer\n\tfn - doesn't fit image. will look bad with anything that's wider than the buffer\n\t--help, -h, help, h, ? - displays this help page\n\nConfig file is ~/.config/termimg.conf. It's just a list of default command line options ONE PER LINE\n";
 #else
-const wchar_t HELP_STRING[] = L"Usage: termimg {imagefile} [options]\nAvailable options:\n\tnorgb - uses terminal colors instead of full rgb\n\tfw - fits image to buffer width (default)\n\tgh - fits image to buffer height\n\tfb - fits image into buffer\n\tfn - doesn't fit image. will look bad with anything that's wider than the buffer\n\t--help, -h, help, h, ? - displays this help page\n\nConfig file is C:\\Users\\<user name>\\AppData\\Local\\termimg\\termimg.conf. It's just a list of default command line options ONE PER LINE\n";
+const char HELP_STRING[] = "Usage: termimg {imagefile} [options]\nAvailable options:\n\tnorgb - uses terminal colors instead of full rgb\n\tfw - fits image to buffer width (default)\n\tgh - fits image to buffer height\n\tfb - fits image into buffer\n\tfn - doesn't fit image. will look bad with anything that's wider than the buffer\n\t--help, -h, help, h, ? - displays this help page\n\nConfig file is C:\\Users\\<username>\\AppData\\Local\\termimg\\termimg.conf. It's just a list of default command line options ONE PER LINE\n";
 #endif
 
 // DARK
@@ -64,7 +66,7 @@ void rgb_set_color(RGBA color);
 void rgb_to_term_set_color(RGBA color);
 void i_set_color(uint8_t color);
 void reset_color();
-wchar_t alpha_to_char(uint8_t alpha);
+const char* alpha_to_char(uint8_t alpha);
 int resize_image(Image img1, Image *img2);
 
 // UNCOLORED

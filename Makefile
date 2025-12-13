@@ -12,6 +12,7 @@ DEBUG_CFLAGS = -g
 RELEASE_CFLAGS = -O3
 
 debug:
+	mkdir -p $(BINDIR)
 ifeq ($(windows),1)
 	x86_64-w64-mingw32-gcc $(SRC) $(INC) $(CFLAGS) $(DEBUG_CFLAGS) $(WINDOWS_LDFLAGS) -o $(BINDIR)/$(BIN).exe
 else
@@ -27,11 +28,21 @@ else
 endif
 
 run: debug
+ifeq ($(windows),1)
+	rm -f $(BIN).exe
+	cp -f $(BINDIR)\$(BIN).exe .
+else
 	rm -f ./$(BIN)
 	cp -f $(BINDIR)/$(BIN) ./
 	chmod +x ./$(BIN)
+endif
 
 run-release: release
+ifeq ($(windows),1)
+	rm -f $(BIN).exe
+	cp -f $(BINDIR)\release\$(BIN).exe .
+else
 	rm -f ./$(BIN)
 	cp -f $(BINDIR)/release/$(BIN) ./
 	chmod +x ./$(BIN)
+endif

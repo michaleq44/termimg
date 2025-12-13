@@ -42,33 +42,33 @@ RGBA* image_to_rgba(Image img) {
 }
 
 int newline() {
-	return wprintf(L"\n");
+	return printf("\n");
 }
 
 void reset_color() {
-	wprintf(L"\x1b[0m");
+	printf("\x1b[0m");
 }
 
 void rgb_set_color(RGBA color) {
-	wprintf(L"\x1b[38;2;%d;%d;%dm", color.r, color.g, color.b);
+	printf("\x1b[38;2;%d;%d;%dm", color.r, color.g, color.b);
 }
 void rgb_to_term_set_color(RGBA color) {
 	i_set_color(rgb_to_term(color));
 }
 void i_set_color(uint8_t color) {
 	if (color > 15) {
-		wprintf(L"\x1b[%dm", color);
+		printf("\x1b[%dm", color);
 		return;
 	}
 	if (color < 8) {
-		wprintf(L"\x1b[%dm", color+30);
+		printf("\x1b[%dm", color+30);
 		return;
 	}
-	wprintf(L"\x1b[%dm", color+82);
+	printf("\x1b[%dm", color+82);
 }
 
 int print_rgba_uncolored(RGBA color) {
-	return wprintf(L"%d %d %d %d", color.r, color.g, color.b, color.a);
+	return printf("%d %d %d %d", color.r, color.g, color.b, color.a);
 }
 
 int print_rgba_colored(RGBA color) {
@@ -82,13 +82,13 @@ void print_rgba_image(RGBA* data, Image img) {
 	for (int y = 0; y < img.height; y++) {
 		for (int x = 0; x < img.width-1; x++) {
 			rgb_set_color(data[y*img.width+x]);
-			//wprintf(L"%d", data[y*img.width+x].a);
-			wprintf(L"%lc", alpha_to_char(data[y*img.width+x].a));
+			//printf("%d", data[y*img.width+x].a);
+			printf("%lc", alpha_to_char(data[y*img.width+x].a));
 			reset_color();
-			//wprintf(L"|");
+			//printf("|");
 		}
 		rgb_set_color(data[y*img.width+img.width-1]);
-		wprintf(L"%lc", alpha_to_char(data[y*img.width+img.width-1].a));
+		printf("%lc", alpha_to_char(data[y*img.width+img.width-1].a));
 		reset_color();
 		newline();
 	}
@@ -100,8 +100,8 @@ void print_image(Image img) {
 			rgb_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
 					img.data[y*img.width*img.channels+x*img.channels+1],
 					img.data[y*img.width*img.channels+x*img.channels+2]));
-			if (img.channels == 4) wprintf(L"%lc", alpha_to_char(img.data[y*img.width*img.channels+x*img.channels+3]));
-			else wprintf(L"%lc", ALPHA_CHARS[ALPHA_CHARS_SIZE-1]);
+			if (img.channels == 4) printf("%s", alpha_to_char(img.data[y*img.width*img.channels+x*img.channels+3]));
+			else printf("%s", ALPHA_CHARS[ALPHA_CHARS_SIZE-1]);
 			reset_color();
 		}
 		reset_color();
@@ -112,8 +112,8 @@ void print_image(Image img) {
 		rgb_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
 				img.data[y*img.width*img.channels+x*img.channels+1],
 				img.data[y*img.width*img.channels+x*img.channels+2]));
-		if (img.channels == 4) wprintf(L"%lc", alpha_to_char(img.data[y*img.width*img.channels+x*img.channels+3]));
-		else wprintf(L"%lc", ALPHA_CHARS[ALPHA_CHARS_SIZE-1]);
+		if (img.channels == 4) printf("%s", alpha_to_char(img.data[y*img.width*img.channels+x*img.channels+3]));
+		else printf("%s", ALPHA_CHARS[ALPHA_CHARS_SIZE-1]);
 		reset_color();
 	}
 	reset_color();
@@ -142,7 +142,7 @@ uint8_t rgb_to_term(RGBA rgb) {
 	return match;
 }
 
-wchar_t alpha_to_char(uint8_t alpha) {
+const char* alpha_to_char(uint8_t alpha) {
 	const uint8_t alpha_step = 255 / ALPHA_CHARS_SIZE;
 	if (alpha > (255 - alpha_step / 2)) return ALPHA_CHARS[ALPHA_CHARS_SIZE-1];
 	return ALPHA_CHARS[(alpha + alpha_step / 2) / alpha_step];
@@ -162,56 +162,55 @@ int imgindx = -1;
 ExecInfo conf;
 
 int main(int argc, char** argv) {
-	setlocale(LC_ALL, "");
-	fwide(stdout, 1);
-#ifdef __WIN32
-	system("chcp 65001 > nul");
+#ifdef _WIN32
+	SetConsoleOutputCP(CP_UTF8);
 #endif
+
 	conf = getExecConfig();
 
 	for (int i = 1; i < argc; i++) if (strcmp(argv[i], "norgb") == 0) {
-		wprintf(L"info: using terminal colors instead of rgb\n");
+		printf("info: using terminal colors instead of rgb\n");
 		conf.use_term_colors = true;
 	} else if (strcmp(argv[i], "fh") == 0) {
-		wprintf(L"info: fitting to buffer height. will look bad if you have line wrapping on and the image is wide enough\n");
+		printf("info: fitting to buffer height. will look bad if you have line wrapping on and the image is wide enough\n");
 		conf.fit_type = FIT_HEIGHT;
 	} else if (strcmp(argv[i], "fb") == 0) {
-		wprintf(L"info: fitting whole into buffer\n");
+		printf("info: fitting whole into buffer\n");
 		conf.fit_type = FIT_WHOLE;
 	} else if (strcmp(argv[i], "fn") == 0) {
-		wprintf(L"warning: not fitting to buffer. will probably not render how you'd want it to\n");
+		printf("warning: not fitting to buffer. will probably not render how you'd want it to\n");
 		conf.fit_type = NO_FIT;
 	} else if (strcmp(argv[i], "fw") == 0) {
 		conf.fit_type = FIT_WIDTH;
 	} else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "help") == 0 || strcmp(argv[i], "h") == 0 || strcmp(argv[i], "?") == 0) {
-		wprintf(HELP_STRING);
+		printf(HELP_STRING);
 		return 0;
 	} else {
 		imgindx = i;
 	}
-	if (conf.fit_type == FIT_WIDTH) wprintf(L"info: fitting to buffer width\n");
+	if (conf.fit_type == FIT_WIDTH) printf("info: fitting to buffer width\n");
 	if (conf.fit_type != NO_FIT) {
 		Image termInfo = getBufferSize();
 		if (termInfo.width < 0 || termInfo.height < 0) {
-			wprintf(L"warning: failed to get terminal info. not applying fitting. will probably look bad\n");
+			printf("warning: failed to get terminal info. not applying fitting. will probably look bad\n");
 			conf.fit_type = NO_FIT;
 		} else {
 			lines = termInfo.height;
 			columns = termInfo.width;
-			wprintf(L"buffer size: %dx%d\n", columns, lines);
+			printf("buffer size: %dx%d\n", columns, lines);
 		}
 	}
 		
 	if (imgindx == -1) {
-		wprintf(HELP_STRING);
+		printf(HELP_STRING);
 		return 0;
 	}
 	
 	if (!image_load(&img, argv[imgindx])) {
-		wprintf(L"error: failed to load image");
+		printf("error: failed to load image");
 		return 1;
 	}
-	wprintf(L"Image has %d color channels\n", img.channels);
+	printf("Image has %d color channels\n", img.channels);
 	Image img2;
 	if (conf.fit_type == FIT_WHOLE) {
 		if (img.height * min(img.width, columns) / img.width / 2 > lines) conf.fit_type = FIT_HEIGHT;
@@ -235,7 +234,7 @@ int main(int argc, char** argv) {
 		img2.width = img.width;
 		img2.height = img.width / 2;
 	}
-	wprintf(L"using size: %dx%d\n", img2.width, img2.height);
+	printf("using size: %dx%d\n", img2.width, img2.height);
 	resize_image(img, &img2);
 	image_free(&img);
 	

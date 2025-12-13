@@ -15,7 +15,7 @@ Image getBufferSize() {
 		return ret;
 	}
 	ret.width = console_info.dwSize.X;
-	ret.height = console_info.dwSize.Y;
+	ret.height = console_info.srWindow.Bottom - console_info.srWindow.Top;
 #else
 	char *termtype = getenv("TERM");
 	char termbuf[2048];
@@ -50,15 +50,15 @@ ExecInfo getExecConfig() {
 	char confpath[1024];
 
 #ifdef _WIN32
-	snprintf(confpath, sizeof(confpath), "%s%s", getenv("LocalAppData"), "\\termimg\\termimg.conf");
+	snprintf(confpath, sizeof(confpath), "%s%s", getenv("localappdata"), "\\termimg\\termimg.conf");
 #else
 	snprintf(confpath, sizeof(confpath), "%s%s", getenv("HOME"), "/.config/termimg/termimg.conf");
 #endif
-	wprintf(L"info: reading config from %s\n", confpath);
+	printf("info: reading config from %s\n", confpath);
 	
 	FILE *f = fopen(confpath, "r");
 	if (f == NULL) {
-		wprintf(L"info: can't open config file or it doesn't exist. check termimg -h\n");
+		printf("info: can't open config file or it doesn't exist. check termimg -h\n");
 		return ret;
 	}
 	char buf[1024];
