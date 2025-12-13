@@ -1,6 +1,6 @@
 SRC = src/main.c src/stb_image.c src/buf.c
 INC = -Iinc
-CFLAGS = --std=c23
+CFLAGS = --std=c2x
 LDFLAGS = -lm -lcurses
 
 WINDOWS_LDFLAGS = -static
