@@ -164,6 +164,8 @@ ExecInfo conf;
 int main(int argc, char** argv) {
 #ifdef _WIN32
 	SetConsoleOutputCP(CP_UTF8);
+#elif __linux__
+	fprintf("\033%G");
 #endif
 
 	conf = getExecConfig();
