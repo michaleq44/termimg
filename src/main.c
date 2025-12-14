@@ -139,7 +139,7 @@ uint8_t rgb_to_term(RGBA rgb) {
 	uint8_t match;
 	uint16_t match_diff = 1024;
 	for (uint8_t i = 0; i < 16; i++) {
-		uint16_t diff = labs((uint16_t)rgb.r-(uint16_t)TERM_COLORS[i].r)+labs((uint16_t)rgb.g-(uint16_t)TERM_COLORS[i].g)+labs((uint16_t)rgb.b-(uint16_t)TERM_COLORS[i].b);
+		uint16_t diff = labs((int16_t)rgb.r-(int16_t)TERM_COLORS[i].r)+labs((int16_t)rgb.g-(int16_t)TERM_COLORS[i].g)+labs((int16_t)rgb.b-(int16_t)TERM_COLORS[i].b);
 		if (diff < match_diff) {
 			match = i;
 			match_diff = diff;
@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
 #ifdef _WIN32
 	SetConsoleOutputCP(CP_UTF8);
 #else
-	fprintf(stderr, "\x1b%G");
+	fprintf(stderr, "\x1b%%G");
 #endif
 
 	conf = getExecConfig();
@@ -233,10 +233,10 @@ int main(int argc, char** argv) {
 			img2.height = min(img.height, lines);
 			img2.width = (img.width * img2.height * 2) / img.height;
 			break;
-		case NO_FIT:
+		default:
 			img2.width = img.width;
 			img2.height = img.height / 2;
-			break;			
+			break;		
 	}
 	if (img2.height > img.height || img2.width > img.width) {
 		img2.width = img.width;

@@ -1,6 +1,6 @@
 SRC = src/main.c src/stb_image.c src/buf.c
 INC = -Iinc
-CFLAGS = --std=c2x
+CFLAGS = --std=c2x -Wall -Wno-unused-value -Wno-unused-variable -Wno-unused-function
 LDFLAGS = -lm -lcurses
 
 WINDOWS_LDFLAGS = -static
