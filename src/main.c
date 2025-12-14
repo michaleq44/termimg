@@ -83,12 +83,12 @@ void print_rgba_image(RGBA* data, Image img) {
 		for (int x = 0; x < img.width-1; x++) {
 			rgb_set_color(data[y*img.width+x]);
 			//printf("%d", data[y*img.width+x].a);
-			printf("%lc", alpha_to_char(data[y*img.width+x].a));
+			printf("%s", alpha_to_char(data[y*img.width+x].a));
 			reset_color();
 			//printf("|");
 		}
 		rgb_set_color(data[y*img.width+img.width-1]);
-		printf("%lc", alpha_to_char(data[y*img.width+img.width-1].a));
+		printf("%s", alpha_to_char(data[y*img.width+img.width-1].a));
 		reset_color();
 		newline();
 	}
