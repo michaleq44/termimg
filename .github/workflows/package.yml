@@ -27,10 +27,8 @@ jobs:
                 sudo docker exec arch sh /termimg/pkg/archonubuntu.sh
             - name: get pacman package from docker container
               run: sudo docker cp arch:/termimg/pkg ./archpkg
-            - name: create archive with packages
-              run: tar czf archpkg.tar.gz archpkg
             - name: Arch package artifact
               uses: actions/upload-artifact@v4
               with:
                 name: package-arch-linux
-                path: ./archpkg.tar.gz
+                path: archpkg
