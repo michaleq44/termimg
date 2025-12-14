@@ -50,4 +50,5 @@ else
 endif
 
 install:
+	mkdir -p $(DESTDIR)/usr/bin
 	install $(BINDIR)/release/$(BIN) $(DESTDIR)/usr/bin/
