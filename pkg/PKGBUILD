@@ -14,7 +14,7 @@ prepare() {
     cd "$srcdir"
     git clone https://github.com/michaleq44/termimg.git
     cd termimg
-    git reset --hard 990ed557f4ca1663f3af90b7386a12df874d8c09
+    git checkout main
 }
 
 build() {
