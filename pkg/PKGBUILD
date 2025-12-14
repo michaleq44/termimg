@@ -1,0 +1,28 @@
+pkgname=termimg
+pkgver=1.0.0
+pkgrel=1
+pkgdesc='Utility to view images directly in the terminal'
+arch=('x86_64')
+url='https://github.com/michaleq44/termimg'
+license=(AGPL-3.0-or-later)
+provides=(termimg)
+
+depends=('ncurses')
+makedepends+=('git')
+
+prepare() {
+    cd "$srcdir"
+    git clone https://github.com/michaleq44/termimg.git
+    cd termimg
+    git reset --hard f3896ff396e7ec68dfecf7e39b49d8416251e5cd
+}
+
+build() {
+    cd "$srcdir/termimg"
+    make release
+}
+
+package() {
+    cd "$srcdir/termimg"
+    make DESTDIR="$pkgdir/" install
+}

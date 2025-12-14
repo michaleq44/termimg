@@ -17,6 +17,7 @@ ifeq ($(windows),1)
 	x86_64-w64-mingw32-gcc $(SRC) $(INC) $(CFLAGS) $(DEBUG_CFLAGS) $(WINDOWS_LDFLAGS) -o $(BINDIR)/$(BIN).exe
 else
 	gcc $(SRC) $(INC) $(CFLAGS) $(DEBUG_CFLAGS) $(LDFLAGS) -o $(BINDIR)/$(BIN)
+	chmod +x $(BINDIR)/$(BIN)
 endif
 
 release:
@@ -25,6 +26,7 @@ ifeq ($(windows),1)
 	x86_64-w64-mingw32-gcc $(SRC) $(INC) $(CFLAGS) $(RELEASE_CFLAGS) $(WINDOWS_LDFLAGS) -o $(BINDIR)/release/$(BIN).exe
 else
 	gcc $(SRC) $(INC) $(CFLAGS) $(RELEASE_CFLAGS) $(LDFLAGS) -o $(BINDIR)/release/$(BIN)
+	chmod +x $(BINDIR)/release/$(BIN)
 endif
 
 run: debug
@@ -46,3 +48,6 @@ else
 	cp -f $(BINDIR)/release/$(BIN) ./
 	chmod +x ./$(BIN)
 endif
+
+install:
+	install $(BINDIR)/relase/$(BIN) $(DESTDIR)/usr/bin/
