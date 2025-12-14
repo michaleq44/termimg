@@ -15,8 +15,6 @@ jobs:
               uses: actions/checkout@v5
             - name: update package index
               run: sudo apt update
-            #- name: update or install required packages
-            #  run: sudo apt-get install -y gcc libncurses5-dev libncursesw5-dev git make libarchive-tools curl
             - name: set up docker
               run: |
                 sudo docker pull archlinux:base-devel
