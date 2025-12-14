@@ -22,7 +22,7 @@ jobs:
                 sudo docker pull archlinux:base-devel
             - name: create pacman package on docker
               run: |
-                sudo docker run --name=arch archlinux:base-devel /bin/bash
+                sudo docker run -t -d --name=arch archlinux:base-devel /bin/bash
                 sudo docker cp ./ arch:/termimg
                 sudo docker exec arch sh /termimg/pkg/archonubuntu.sh
             - name: get pacman package from docker container
