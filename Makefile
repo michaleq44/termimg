@@ -50,4 +50,4 @@ else
 endif
 
 install:
-	install $(BINDIR)/relase/$(BIN) $(DESTDIR)/usr/bin/
+	install $(BINDIR)/release/$(BIN) $(DESTDIR)/usr/bin/
