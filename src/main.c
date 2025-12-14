@@ -94,10 +94,13 @@ void print_rgba_image(RGBA* data, Image img) {
 	}
 }
 
-void print_image(Image img) {
+void print_image(Image img, bool usergb) {
 	for (int y = 0; y < img.height-1; y++) {
 		for (int x = 0; x < img.width; x++) {
-			rgb_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
+			if (usergb) rgb_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
+					img.data[y*img.width*img.channels+x*img.channels+1],
+					img.data[y*img.width*img.channels+x*img.channels+2]));
+			else rgb_to_term_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
 					img.data[y*img.width*img.channels+x*img.channels+1],
 					img.data[y*img.width*img.channels+x*img.channels+2]));
 			if (img.channels == 4) printf("%s", alpha_to_char(img.data[y*img.width*img.channels+x*img.channels+3]));
@@ -109,7 +112,10 @@ void print_image(Image img) {
 	}
 	int y = img.height-1;
 	for (int x = 0; x < img.width; x++) {
-		rgb_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
+		if (usergb) rgb_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
+				img.data[y*img.width*img.channels+x*img.channels+1],
+				img.data[y*img.width*img.channels+x*img.channels+2]));
+		else rgb_to_term_set_color(rgb(img.data[y*img.width*img.channels+x*img.channels],
 				img.data[y*img.width*img.channels+x*img.channels+1],
 				img.data[y*img.width*img.channels+x*img.channels+2]));
 		if (img.channels == 4) printf("%s", alpha_to_char(img.data[y*img.width*img.channels+x*img.channels+3]));
@@ -133,7 +139,7 @@ uint8_t rgb_to_term(RGBA rgb) {
 	uint8_t match;
 	uint16_t match_diff = 1024;
 	for (uint8_t i = 0; i < 16; i++) {
-		uint16_t diff = labs(rgb.r-TERM_COLORS[i].r)+labs(rgb.g-TERM_COLORS[i].g)+labs(rgb.b-TERM_COLORS[i].b);
+		uint16_t diff = labs((uint16_t)rgb.r-(uint16_t)TERM_COLORS[i].r)+labs((uint16_t)rgb.g-(uint16_t)TERM_COLORS[i].g)+labs((uint16_t)rgb.b-(uint16_t)TERM_COLORS[i].b);
 		if (diff < match_diff) {
 			match = i;
 			match_diff = diff;
@@ -238,7 +244,7 @@ int main(int argc, char** argv) {
 	resize_image(img, &img2);
 	image_free(&img);
 	
-	print_image(img2);
+	print_image(img2, !conf.use_term_colors);
 	image_free(&img2);
 	waitForKeypress();
 	

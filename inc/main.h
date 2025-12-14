@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -61,7 +62,7 @@ RGBA* image_to_rgba(Image img);
 
 int newline();
 void print_rgba_image(RGBA* data, Image img);
-void print_image(Image img);
+void print_image(Image img, bool rgb);
 void rgb_set_color(RGBA color);
 void rgb_to_term_set_color(RGBA color);
 void i_set_color(uint8_t color);
