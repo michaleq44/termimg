@@ -1,4 +1,4 @@
-pkgname=termimg
+pkgname=mqtermimg
 pkgver=1.0.1
 pkgrel=1
 pkgdesc='Utility to view images directly in the terminal'
