@@ -1,6 +1,6 @@
 pkgname=mqtermimg
 pkgver=1.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc='Utility to view images directly in the terminal'
 arch=('x86_64')
 url='https://github.com/michaleq44/termimg'
